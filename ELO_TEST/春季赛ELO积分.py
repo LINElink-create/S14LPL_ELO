@@ -13,19 +13,15 @@ def ELO(Ra, Rb, Sa, K):
     return int(Ra), int(Rb)
 
 
-def bo3_ELO(Ra, Rb, A, B, K):
-    if A == 2:
-        Ra, Rb = ELO(Ra, Rb, 1, K)
-        Ra, Rb = ELO(Ra, Rb, 1, K)
-        if B == 1:
-            Ra, Rb = ELO(Ra, Rb, 0, K)
-    elif B == 2:
-        Ra, Rb = ELO(Ra, Rb, 0, K)
-        Ra, Rb = ELO(Ra, Rb, 0, K)
-        if A == 1:
-            Ra, Rb = ELO(Ra, Rb, 1, K)
-    return Ra, Rb
 
+def bo_n_ELO(Ra, Rb, A, B, K):
+    if A>0:
+        for i in range(A):
+            Ra, Rb = ELO(Ra, Rb, 1, K)
+    if B>0:
+        for i in range(B):
+            Ra, Rb = ELO(Ra, Rb, 0, K)
+    return Ra, Rb
 
 # 读取excel文件
 workbook = openpyxl.load_workbook('../lpl春季赛常规赛积分.xlsx')
@@ -50,6 +46,23 @@ for row in sheet1.values:
     elo[team_num] = row[1]
     team_num += 1
 
+# 1200
+# 1158
+# 1074
+# 1047
+# 1042
+# 995
+# 1013
+# 1002
+# 972
+# 957
+# 954
+# 924
+# 913
+# 893
+# 862
+# 860
+# 819
 
 def get_elo(t):
     team_num = team[t]
@@ -66,7 +79,7 @@ for row in sheet.values:
     B = int(row[3])
     # K值 常规赛取32, 季后赛取16, 决赛取8, 世界赛取16, 世界赛决赛取8
     K = 32
-    Ra, Rb = bo3_ELO(Ra, Rb, A, B, K)
+    Ra, Rb = bo_n_ELO(Ra, Rb, A, B, K)
     print(Ra, Rb)
     elo[team.get(row[0])] = Ra
     elo[team.get(row[1])] = Rb

@@ -65,6 +65,7 @@ def ELO_BO5(Ra, Rb):
         r_1_3: '1:3',
         r_0_3: '0:3'
     }
+    print(f'综合胜率为：{round(r_3_0+r_3_1+r_3_2, 4) * 100}%')
     return result.get(max(r_3_0, r_3_1, r_3_2, r_2_3, r_1_3, r_0_3))
 
 
