@@ -2,6 +2,7 @@
 
 """ELO算法的实现"""
 import openpyxl
+from scipy.stats import binom
 
 
 def ELO(Ra, Rb, Sa, K):
@@ -21,41 +22,68 @@ def ELO_win_rate(Ra, Rb):
     Eb = 1 / (1 + 10 ** ((Ra - Rb) / 400))
     return Ea, Eb
 
-# bo3比赛
-def bo3_ELO(Ra, Rb, A, B, K):
-    if A == 2:
-        Ra,Rb = ELO(Ra, Rb, 1, K)
-        Ra,Rb = ELO(Ra, Rb, 1, K)
-        if B == 1:
-            Ra,Rb = ELO(Ra, Rb, 0, K)
-    elif B == 2:
-        Ra,Rb = ELO(Ra, Rb, 0, K)
-        Ra,Rb = ELO(Ra, Rb, 0, K)
-        if A == 1:
-            Ra,Rb = ELO(Ra, Rb, 1, K)
+
+def bo_n_ELO(Ra, Rb, A, B, K):
+    if A>0:
+        for i in range(A):
+            Ra, Rb = ELO(Ra, Rb, 1, K)
+    if B>0:
+        for i in range(B):
+            Ra, Rb = ELO(Ra, Rb, 0, K)
     return Ra, Rb
 
-# bo5比赛
-def bo5_ELO(Ra, Rb, A, B, K):
-    if A == 3:
-        Ra,Rb = ELO(Ra, Rb, 1, K)
-        Ra,Rb = ELO(Ra, Rb, 1, K)
-        Ra,Rb = ELO(Ra, Rb, 1, K)
-        if B == 2:
-            Ra,Rb = ELO(Ra, Rb, 0, K)
-            Ra,Rb = ELO(Ra, Rb, 0, K)
-        elif B == 1:
-            Ra,Rb = ELO(Ra, Rb, 0, K)
-    elif B == 3:
-        Ra,Rb = ELO(Ra, Rb, 0, K)
-        Ra,Rb = ELO(Ra, Rb, 0, K)
-        Ra,Rb = ELO(Ra, Rb, 0, K)
-        if A == 2:
-            Ra,Rb = ELO(Ra, Rb, 1, K)
-            Ra,Rb = ELO(Ra, Rb, 1, K)
-        elif A == 1:
-            Ra,Rb = ELO(Ra, Rb, 1, K)
-    return Ra, Rb
+def ELO_BO5(Ra, Rb):
+    Ea, Eb = ELO_win_rate(Ra, Rb)
+    win_rate = str(round(Ea * 100, 1))
+    print("守擂者胜率为：" + win_rate + "%")
+    r_3_0 = binom.pmf(3, 3, Ea)
+    r_3_1 = binom.pmf(2, 3, Ea) * Ea
+    r_3_2 = binom.pmf(2, 4, Ea) * Ea
+    r_2_3 = binom.pmf(2, 4, Ea) * (1 - Ea)
+    r_1_3 = binom.pmf(1, 3, Ea) * (1 - Ea)
+    r_0_3 = binom.pmf(0, 3, Ea)
+
+    print(f'3:0概率为: {round(r_3_0 * 100, 1)}%')
+    print(f'3:1概率为: {round(r_3_1 * 100, 1)}%')
+    print(f'3:2概率为: {round(r_3_2 * 100, 1)}%')
+    print(f'2:3概率为: {round(r_2_3 * 100, 1)}%')
+    print(f'1:3概率为: {round(r_1_3 * 100, 1)}%')
+    print(f'0:3概率为: {round(r_0_3 * 100, 1)}%')
+
+    result = {
+        r_3_0: '3:0',
+        r_3_1: '3:1',
+        r_3_2: '3:2',
+        r_2_3: '2:3',
+        r_1_3: '1:3',
+        r_0_3: '0:3'
+    }
+    print(f'综合胜率为：{round(r_3_0+r_3_1+r_3_2, 4) * 100}%')
+    return result.get(max(r_3_0, r_3_1, r_3_2, r_2_3, r_1_3, r_0_3))
+
+def ELO_BO3(Ra, Rb):
+    Ea, Eb = ELO_win_rate(Ra, Rb)
+    win_rate = str(round(Ea * 100, 1))
+    print("守擂者胜率为：" + win_rate + "%")
+    r_2_0 = binom.pmf(2, 2, Ea)
+    r_2_1 = binom.pmf(1, 2, Ea) * Ea
+    r_1_2 = binom.pmf(1, 2, Ea) * (1 - Ea)
+    r_0_2 = binom.pmf(0, 2, Ea)
+
+    print(f'2:0概率为: {round(r_2_0 * 100, 1)}%')
+    print(f'2:1概率为: {round(r_2_1 * 100, 1)}%')
+    print(f'1:2概率为: {round(r_1_2 * 100, 1)}%')
+    print(f'0:2概率为: {round(r_0_2 * 100, 1)}%')
+
+
+    result = {
+        r_2_0: '2:0',
+        r_2_1: '2:1',
+        r_1_2: '1:2',
+        r_0_2: '0:2'
+    }
+    print(f'综合胜率为：{round(r_2_0+r_2_1, 4) * 100}%')
+    return result.get(max(r_2_0, r_2_1, r_1_2, r_0_2))
 
 def read_elo():
     workbook = openpyxl.load_workbook('../lpl春季赛常规赛积分.xlsx')
@@ -107,3 +135,5 @@ def save_game(A, B, a, b):
     sheet = workbook['Sheet1']
     sheet.append([A, B, a, b])
     workbook.save('../lpl春季赛常规赛积分.xlsx')
+
+

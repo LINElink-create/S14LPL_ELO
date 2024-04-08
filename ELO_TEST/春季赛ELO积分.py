@@ -46,23 +46,6 @@ for row in sheet1.values:
     elo[team_num] = row[1]
     team_num += 1
 
-# 1200
-# 1158
-# 1074
-# 1047
-# 1042
-# 995
-# 1013
-# 1002
-# 972
-# 957
-# 954
-# 924
-# 913
-# 893
-# 862
-# 860
-# 819
 
 def get_elo(t):
     team_num = team[t]
